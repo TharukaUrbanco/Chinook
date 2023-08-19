@@ -16,6 +16,7 @@ builder.Services.AddDefaultIdentity<ChinookUser>(options => options.SignIn.Requi
     .AddEntityFrameworkStores<ChinookContext>();
 
 builder.Services.AddScoped<IArtistService, ArtistService>();
+builder.Services.AddScoped<IAlbumService, AlbumService>();
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
