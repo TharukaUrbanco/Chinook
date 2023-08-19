@@ -1,0 +1,58 @@
+﻿@page "/myfavoritetracks"
+
+@inject ITrackService TrackService
+
+<h3>My Favorite Tracks</h3>
+
+@if (myFavouriteTracks == null)
+{
+    <Loading />
+}
+else
+{
+    <table class="table table-striped table-hover table-sm">
+        <thead>
+            <tr>
+                <th>Track Name</th>
+                <th>Album Title</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var track in myFavouriteTracks)
+            {
+                <tr>
+                    <td>@track.Name</td>
+                    <td>@track.Album?.Title</td>                    
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+
+    [CascadingParameter] 
+    private Task<AuthenticationState> authenticationState { get; set; }
+
+    private string CurrentUserId = string.Empty;
+
+    private List<Track> myFavouriteTracks = new List<Track>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+        CurrentUserId = await GetUserId();
+        myFavouriteTracks = await TrackService.GetFavoriteTracksByUserIdAsync(CurrentUserId);
+
+        if (myFavouriteTracks == null)
+            myFavouriteTracks = new List<Track>();
+    }
+
+    private async Task<string> GetUserId()
+    {
+        var user = (await authenticationState).User;
+        var userId = user.FindFirst(u => u.Type.Contains(ClaimTypes.NameIdentifier))?.Value;
+        return userId;
+    }
+
+}
