@@ -11,7 +11,7 @@ namespace Chinook.Services
         {
             _dbContext = dbContext;
         }
-        public async Task<IEnumerable<Artist>> GetArtistsAsync()
+        public async Task<IEnumerable<Artist>> GetAllArtistsAsync()
         {
             return await _dbContext.Artists.ToListAsync();
         }
