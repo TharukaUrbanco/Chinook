@@ -1,11 +1,9 @@
 ﻿@page "/artist/{ArtistId:long}"
 @attribute [Authorize]
 
-@using Chinook.ClientModels
-@using Microsoft.EntityFrameworkCore
-@using System.Security.Claims;
 
 @inject IArtistService ArtistService;
+@inject ITrackService TrackService;
 
 @if (!string.IsNullOrWhiteSpace(InfoMessage))
 {
@@ -58,36 +56,43 @@ else
 }
 
 @code {
-    [Parameter] public long ArtistId { get; set; }
+    [Parameter] 
+    public long ArtistId { get; set; }
+
     [CascadingParameter] private Task<AuthenticationState> authenticationState { get; set; }
-    [Inject] IDbContextFactory<ChinookContext> DbFactory { get; set; }
+
     private Modal PlaylistDialog { get; set; }
 
-    private Artist Artist;
-    private List<PlaylistTrack> Tracks;
-    private DbContext DbContext;
+    private Artist Artist = new Artist();
+    private List<PlaylistTrack> Tracks = new List<PlaylistTrack>();
+
     private PlaylistTrack SelectedTrack;
-    private string InfoMessage;
-    private string CurrentUserId;
+    private string InfoMessage = string.Empty;
+    private string CurrentUserId = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         await InvokeAsync(StateHasChanged);
         CurrentUserId = await GetUserId();
-        var DbContext = await DbFactory.CreateDbContextAsync();
 
-        //Artist = DbContext.Artists.SingleOrDefault(a => a.ArtistId == ArtistId);
-        Artist = await ArtistService.GetArtistByIdAsync(ArtistId);
+        var artist = await ArtistService.GetArtistByIdAsync(ArtistId);
+        if (artist == null)
+            return;
 
-        Tracks = DbContext.Tracks.Where(a => a.Album.ArtistId == ArtistId)
-            .Include(a => a.Album)
-            .Select(t => new PlaylistTrack()
-                {
-                    AlbumTitle = (t.Album == null ? "-" : t.Album.Title),
-                    TrackId = t.TrackId,
-                    TrackName = t.Name,
-                    IsFavorite = t.Playlists.Where(p => p.UserPlaylists.Any(up => up.UserId == CurrentUserId && up.Playlist.Name == "Favorites")).Any()
-                })
+        Artist = artist;
+        Tracks = await GetAllPlayListTracksByArtistId(ArtistId);
+    }
+
+    private async Task<List<PlaylistTrack>> GetAllPlayListTracksByArtistId(long artistId)
+    {
+        var tracksByArtist = await TrackService.GetTracksWithAlbumInfoByArtistIdAsync(artistId);
+        return tracksByArtist.Select(t => new PlaylistTrack()
+            {
+                AlbumTitle = (t.Album == null ? "-" : t.Album.Title),
+                TrackId = t.TrackId,
+                TrackName = t.Name,
+                IsFavorite = t.Playlists.Where(p => p.UserPlaylists.Any(up => up.UserId == CurrentUserId && up.Playlist.Name == "Favorites")).Any()
+            })
             .ToList();
     }
 
@@ -140,7 +145,7 @@ else
         @if (SelectedTrack != null)
         {
             <div class="form-group mb-2">
-                <label>@Artist.Name - @SelectedTrack.AlbumTitle - @SelectedTrack.TrackName</label>
+                <label>@Artist?.Name - @SelectedTrack.AlbumTitle - @SelectedTrack.TrackName</label>
             </div>
         }
 
