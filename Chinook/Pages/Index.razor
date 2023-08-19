@@ -1,7 +1,10 @@
 ﻿@page "/"
 @attribute [Authorize]
 
+@inject IArtistService ArtistService;
+
 @using Chinook.Models
+@using Chinook.Services.IServices;
 @using Microsoft.EntityFrameworkCore
 
 <PageTitle>Index</PageTitle>
@@ -34,12 +37,13 @@ else
 }
 
 @code {
-    private List<Artist> Artists;
+    private List<Artist> Artists = new List<Artist>();
     [Inject] IDbContextFactory<ChinookContext> DbFactory { get; set; }
 
     protected override async Task OnInitializedAsync() {
         await InvokeAsync(StateHasChanged);
-        Artists = await GetArtists();
+        //Artists = await GetArtists();
+        Artists = (await ArtistService.GetArtistsAsync()).ToList();
     }
 
     public async Task<List<Artist>> GetArtists()
@@ -47,6 +51,8 @@ else
         var dbContext = await DbFactory.CreateDbContextAsync();
         var users = dbContext.Users.Include(a => a.UserPlaylists).ToList();
         
+
+
         return dbContext.Artists.ToList();
     }
 

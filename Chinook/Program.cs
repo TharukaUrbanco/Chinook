@@ -1,6 +1,8 @@
 using Chinook;
 using Chinook.Areas.Identity;
 using Chinook.Models;
+using Chinook.Services;
+using Chinook.Services.IServices;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +14,8 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<ChinookUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ChinookContext>();
+
+builder.Services.AddScoped<IArtistService, ArtistService>();
 
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
