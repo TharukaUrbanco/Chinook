@@ -1,10 +1,11 @@
 ﻿@page "/artist/{ArtistId:long}"
 @attribute [Authorize]
 
-@using Chinook.Models
 @using Chinook.ClientModels
 @using Microsoft.EntityFrameworkCore
 @using System.Security.Claims;
+
+@inject IArtistService ArtistService;
 
 @if (!string.IsNullOrWhiteSpace(InfoMessage))
 {
@@ -54,7 +55,6 @@ else
             }
             </tbody>
         </table>
-
 }
 
 @code {
@@ -76,7 +76,8 @@ else
         CurrentUserId = await GetUserId();
         var DbContext = await DbFactory.CreateDbContextAsync();
 
-        Artist = DbContext.Artists.SingleOrDefault(a => a.ArtistId == ArtistId);
+        //Artist = DbContext.Artists.SingleOrDefault(a => a.ArtistId == ArtistId);
+        Artist = await ArtistService.GetArtistByIdAsync(ArtistId);
 
         Tracks = DbContext.Tracks.Where(a => a.Album.ArtistId == ArtistId)
             .Include(a => a.Album)

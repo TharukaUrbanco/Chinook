@@ -11,9 +11,16 @@ namespace Chinook.Services
         {
             _dbContext = dbContext;
         }
+
+        public async Task<Artist?> GetArtistByIdAsync(long artistId)
+        {
+            return await _dbContext.Artists.FirstOrDefaultAsync(r => r.ArtistId == artistId);
+        }
+
         public async Task<IEnumerable<Artist>> GetAllArtistsAsync()
         {
             return await _dbContext.Artists.ToListAsync();
         }
+
     }
 }
