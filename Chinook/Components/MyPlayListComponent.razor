@@ -1,0 +1,60 @@
+﻿@inject IPlayListService PlayListService;
+
+<div class="mt-2">
+    <hr style="color:white"/>
+    <div class="input-group justify-content-between">
+        <h5 style="color:white;font-size:16px;">
+            My PlayLists          
+        </h5>
+        <button class="btn btn btn-outline-light"><i class="bi bi-plus">Add</i> </button>
+    </div>
+    
+    <br />
+    @if (playLists == null)
+    {
+        <Loading/>
+    }
+    else
+    {
+        @if(playLists.Count > 0)
+        {
+            <ul class="list-group list-group-flush">
+                @foreach (var i in playLists)
+                {
+                    <li class="list-group-item">@i.Name</li>
+                }
+            </ul>
+        }
+        else
+        {
+            <br />
+            <p>List is Empty...</p>
+        }
+    }
+    <hr style="color:white" />
+</div>
+
+
+@code {
+
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationState { get; set; }
+
+    private string CurrentUserId = string.Empty;
+
+    private List<Models.Playlist> playLists = new List<Models.Playlist>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        CurrentUserId = await GetUserId();
+        playLists = (await PlayListService.GetPlayListsByUserIdAsync(CurrentUserId)).ToList();
+    }
+
+    private async Task<string> GetUserId()
+    {
+        var user = (await authenticationState).User;
+        var userId = user.FindFirst(u => u.Type.Contains(ClaimTypes.NameIdentifier))?.Value;
+        return userId;
+    }
+
+}
