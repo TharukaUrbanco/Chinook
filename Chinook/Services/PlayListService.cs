@@ -39,6 +39,21 @@ namespace Chinook.Services
             return "Success";
         }
 
+        public async Task<string> AddTrackToPlayList(long playListId, long trackId)
+        {
+            var playList = await _dbContext.Playlists.FirstOrDefaultAsync(r => r.PlaylistId == playListId);
+            if (playList == null)
+                return "PlayList Not Found";
+
+            if (playList.Tracks.Any(r => r.TrackId == trackId))
+                return "Track already exists";
+
+            var track = await _dbContext.Tracks.FirstOrDefaultAsync(r => r.TrackId == trackId);
+            playList.Tracks.Add(track);
+            await _dbContext.SaveChangesAsync();
+            return "Success";
+        }
+
         public async Task<Playlist?> GetPlayListByNameAndUserIdAsync(string name, string userId)
         {
             return await _dbContext.UserPlaylists.Where(r => r.UserId == userId)

@@ -7,5 +7,6 @@ namespace Chinook.Services.IServices
         Task<IEnumerable<Playlist>> GetPlayListsByUserIdAsync(string userId);
         Task<Playlist?> GetPlayListByNameAndUserIdAsync(string name, string userId);
         Task<string> AddNewPlayListToUser(string playListName, string userId);
+        Task<string> AddTrackToPlayList(long playListId, long trackId);
     }
 }
