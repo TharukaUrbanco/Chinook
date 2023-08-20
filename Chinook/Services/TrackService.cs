@@ -1,4 +1,5 @@
-﻿using Chinook.Models;
+﻿using Chinook.ClientModels;
+using Chinook.Models;
 using Chinook.Services.IServices;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,6 +22,21 @@ namespace Chinook.Services
         {
             return await _dbContext.Tracks.Where(a => a.Album.ArtistId == artistId)
                 .Include(a => a.Album)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<PlaylistTrack>> GetTracksWithAlbumAndFavoriteInfoByArtistIdAsync(long artistId, string userId)
+        {
+            return await _dbContext.Tracks
+                .Include(a => a.Album)
+                .Where(a => a.Album.ArtistId == artistId)
+                .Select(t => new PlaylistTrack()
+                {
+                    AlbumTitle = (t.Album == null ? "-" : t.Album.Title),
+                    TrackId = t.TrackId,
+                    TrackName = t.Name,
+                    IsFavorite = t.Playlists.Where(p => p.UserPlaylists.Any(up => up.UserId == userId && up.Playlist.Name == "Favorites")).Any()
+                })
                 .ToListAsync();
         }
 

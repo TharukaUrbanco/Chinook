@@ -81,22 +81,7 @@ else
             return;
 
         Artist = artist;
-        Tracks = await GetAllPlayListTracksByArtistId(ArtistId);
-    }
-
-    private async Task<List<PlaylistTrack>> GetAllPlayListTracksByArtistId(long artistId)
-    {
-        var tracksByArtist = await TrackService.GetTracksWithAlbumInfoByArtistIdAsync(artistId);
-        var records = tracksByArtist.Select( t => new PlaylistTrack()
-            {
-                AlbumTitle = (t.Album == null ? "-" : t.Album.Title),
-                TrackId = t.TrackId,
-                TrackName = t.Name,
-                IsFavorite = t.Playlists.Where(p => p.UserPlaylists.Any(up => up.UserId == CurrentUserId && up.Playlist.Name == "Favorites")).Any()
-            })
-           .ToList();
-
-        return records;
+        Tracks = (await TrackService.GetTracksWithAlbumAndFavoriteInfoByArtistIdAsync(ArtistId, CurrentUserId)).ToList();
     }
 
     private async Task<string> GetUserId()
@@ -143,7 +128,7 @@ else
 
     private void RefreshPage()
     {
-        NavigationManager.NavigateTo($"/artist/{ArtistId}");
+        NavigationManager.NavigateTo($"/artist/{ArtistId}", true);
     }
 
 
