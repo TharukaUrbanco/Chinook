@@ -1,0 +1,42 @@
+﻿
+<Modal @ref="AddNewPlayListDialog">
+    <Title>
+        Add New Playlist
+    </Title>
+    <Body>
+        <div class="form-group mb-2">
+            <label for="NewPlaylist">Create new playlist</label>
+            <input type="text" id="NewPlaylist" class="form-control" placeholder="Name for the new playlist">
+        </div>
+    </Body>
+    <Footer>
+        <button class="btn btn-success" @onclick="AddNewPlayList">Save</button>
+    </Footer>
+</Modal>
+
+
+@code {
+
+
+    private string InfoMessage = string.Empty;
+
+    private Modal AddNewPlayListDialog { get; set; }
+
+    private void AddNewPlayList()
+    {
+        //CloseInfoMessage();
+        //InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} added to playlist {{playlist name}}.";
+        AddNewPlayListDialog.Close();
+    }
+
+    private void OpenPlaylistDialog()
+    {
+        CloseInfoMessage();
+        AddNewPlayListDialog.Open();
+    }
+
+    private void CloseInfoMessage()
+    {
+        InfoMessage = "";
+    }
+}
