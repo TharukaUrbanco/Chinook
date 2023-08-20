@@ -6,6 +6,8 @@
 @inject IArtistService ArtistService;
 @inject ITrackService TrackService;
 
+<PageTitle>Artist ( @Artist.Name ) - Chinook</PageTitle>
+
 @if (!string.IsNullOrWhiteSpace(InfoMessage))
 {
     <div class="alert alert-info fade show">
