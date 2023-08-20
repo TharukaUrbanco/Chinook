@@ -17,9 +17,12 @@ namespace Chinook.Services
             return await _dbContext.Artists.FirstOrDefaultAsync(r => r.ArtistId == artistId);
         }
 
-        public async Task<IEnumerable<Artist>> GetAllArtistsAsync()
+        public async Task<IEnumerable<Artist>> GetAllArtistsAsync(string searchValue)
         {
-            return await _dbContext.Artists.Include(r => r.Albums).ToListAsync();
+            if(string.IsNullOrEmpty(searchValue))
+                return await _dbContext.Artists.Include(r => r.Albums).ToListAsync();
+
+            return await _dbContext.Artists.Where(r => r.Name.ToLower().Contains(searchValue.ToLower())).Include(r => r.Albums).ToListAsync();
         }
 
     }

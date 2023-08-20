@@ -1,0 +1,32 @@
+﻿<div class="input-group">
+    <input type="text"
+        class="form-control"
+        placeholder="Enter Search Value Here"
+        @bind-value:event="onchange"
+        @bind-value="nameToSearch"
+        @oninput="ChangeTextWhenInputting" />
+
+    <button class="btn-success input-group-text"
+        type="button"
+        @onclick="OnSearch">
+        Search
+    </button>
+
+</div>
+@code {
+    private string nameToSearch = string.Empty;
+
+    [Parameter]
+    public EventCallback<string> OnSearchText { get; set; }
+
+    private void OnSearch()
+    {
+        OnSearchText.InvokeAsync(nameToSearch);
+    }
+
+    private void ChangeTextWhenInputting(ChangeEventArgs args)
+    {
+        OnSearchText.InvokeAsync(args.Value?.ToString());
+    }
+
+}
