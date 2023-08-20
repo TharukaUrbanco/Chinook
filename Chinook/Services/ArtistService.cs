@@ -19,7 +19,7 @@ namespace Chinook.Services
 
         public async Task<IEnumerable<Artist>> GetAllArtistsAsync()
         {
-            return await _dbContext.Artists.ToListAsync();
+            return await _dbContext.Artists.Include(r => r.Albums).ToListAsync();
         }
 
     }
