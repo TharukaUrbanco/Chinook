@@ -1,12 +1,13 @@
 ﻿@inject IPlayListService PlayListService;
+@inject NavigationManager NavigationManager
 
 <div class="mt-2">
     <hr style="color:white"/>
     <div class="input-group justify-content-between">
-        <h5 style="color:white;font-size:16px;">
+        <h5 style="color:white;font-size:18px;">
             My PlayLists          
         </h5>
-        <button class="btn btn btn-outline-light" @onclick="OpenAddNewPlaylistDialog"><i class="bi bi-plus">Add</i></button>
+        <button class="btn btn btn-outline-light" @onclick="OpenAddNewPlaylist"><i class="bi bi-plus">Add</i></button>
     </div>
     
     <br />
@@ -16,6 +17,8 @@
     }
     else
     {
+        <div style="overflow-y: scroll;max-height:300px">
+
         @if(playLists.Count > 0)
         {
             <ul class="list-group list-group-flush">
@@ -30,50 +33,20 @@
             <br />
             <p>List is Empty...</p>
         }
+        </div>
     }
     <hr style="color:white" />
 
 </div>
-
-<style>
-
-    .modal {
-        top: 5%;
-        z-index: 100000
-    }
-
-</style>
-
-<Modal @ref="AddNewPlayListDialog">
-    <Title>
-        Add New Playlist
-    </Title>
-    <Body>
-        <div class="form-group mb-2">
-            <label for="NewPlaylist">Create new playlist</label>
-            <input type="text" id="NewPlaylist" class="form-control" placeholder="Name for the new playlist">
-        </div>
-    </Body>
-    <Footer>
-        <button class="btn btn-success" @onclick="AddNewPlayList">Save</button>
-    </Footer>
-</Modal>
-
 
 @code {
 
     [CascadingParameter]
     private Task<AuthenticationState> authenticationState { get; set; }
 
-    private string InfoMessage = string.Empty;
-
     private string CurrentUserId = string.Empty;
 
     private List<Models.Playlist> playLists = new List<Models.Playlist>();
-
-    private Modal AddNewPlayListDialog { get; set; }
-
-
 
     protected override async Task OnParametersSetAsync()
     {
@@ -88,24 +61,9 @@
         return userId;
     }
 
-  
-
-    private void AddNewPlayList()
+    private void OpenAddNewPlaylist()
     {
-        //CloseInfoMessage();
-        //InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} added to playlist {{playlist name}}.";
-        AddNewPlayListDialog.Close();
-    }
-
-    private void OpenAddNewPlaylistDialog()
-    {
-        CloseInfoMessage();
-        AddNewPlayListDialog.Open();
-    }
-
-    private void CloseInfoMessage()
-    {
-        InfoMessage = "";
+        NavigationManager.NavigateTo("/addPlayList");
     }
 
 }

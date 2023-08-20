@@ -1,42 +1,77 @@
-﻿
-<Modal @ref="AddNewPlayListDialog">
-    <Title>
-        Add New Playlist
-    </Title>
-    <Body>
-        <div class="form-group mb-2">
-            <label for="NewPlaylist">Create new playlist</label>
-            <input type="text" id="NewPlaylist" class="form-control" placeholder="Name for the new playlist">
-        </div>
-    </Body>
-    <Footer>
-        <button class="btn btn-success" @onclick="AddNewPlayList">Save</button>
-    </Footer>
-</Modal>
+﻿@page "/addPlayList"
+
+@inject NavigationManager NavigationManager
+@inject IPlayListService PlayListService;
+
+<div class="row">
+    <div class="col-md-3"></div>
+    <div class="col-md-6">
+        <h3>Add PlayList</h3>
+
+        <br />
+        <EditForm Model="@addNewPlayListModel" OnValidSubmit="SaveChanges">
+
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <ValidationSummary></ValidationSummary>
+
+            <div class="form-group">
+                <label for="name">PlayList Name</label>
+                <InputText id="name"
+                           @bind-Value="addNewPlayListModel.PlayListName"
+                           class="form-control">
+                </InputText>
+            </div>
+            <br />
+            <button type="submit" class="btn btn-primary">Save</button>
+            <button type="button" class="btn btn-danger" @onclick="Cancel">Cancel</button>
+
+        </EditForm>
+    </div>
+    <div class="col-md-3"></div>
+</div>
+
 
 
 @code {
 
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationState { get; set; }
 
-    private string InfoMessage = string.Empty;
+    private ValidationMessageStore? messageStore;
 
-    private Modal AddNewPlayListDialog { get; set; }
+    private string CurrentUserId = string.Empty;
 
-    private void AddNewPlayList()
+    private async Task<string> GetUserId()
     {
-        //CloseInfoMessage();
-        //InfoMessage = $"Track {Artist.Name} - {SelectedTrack.AlbumTitle} - {SelectedTrack.TrackName} added to playlist {{playlist name}}.";
-        AddNewPlayListDialog.Close();
+        var user = (await authenticationState).User;
+        var userId = user.FindFirst(u => u.Type.Contains(ClaimTypes.NameIdentifier))?.Value;
+        return userId;
     }
 
-    private void OpenPlaylistDialog()
+    protected override async Task OnParametersSetAsync()
     {
-        CloseInfoMessage();
-        AddNewPlayListDialog.Open();
+        CurrentUserId = await GetUserId();
+       
     }
 
-    private void CloseInfoMessage()
+    private AddNewPlayList addNewPlayListModel = new AddNewPlayList();
+
+    private async Task SaveChanges()
     {
-        InfoMessage = "";
+        var result = await PlayListService.AddNewPlayListToUser(addNewPlayListModel.PlayListName, CurrentUserId);
+        if (result == "Success")
+        {
+            NavigationManager.NavigateTo("/", true);
+        }      
+        else
+        {
+            //messageStore.Add(() => addNewPlayListModel.PlayListName, "ItemName invalid");
+        }
     }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
 }
